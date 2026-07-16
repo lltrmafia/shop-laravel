@@ -28,7 +28,7 @@ class CategoryController extends Controller
     public function show(Category $category, Request $request)
     {
         $ids = $this->getChildren($category);
-        $query = Product::whereIn('category_id', $ids);
+        $query = Product::whereIn('category_id', $ids)->whereNull('parent_id');
         $query = ProductFilterBuilder::applyFilters($query, $request);
         $query = ProductFilterBuilder::applySort($query, $request);
         return [

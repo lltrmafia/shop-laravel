@@ -79,7 +79,8 @@ class Product extends Model
             'param_product'
         )
             ->withPivot([
-                'value'
+                'value',
+                'display_name'
             ])
             ->withTimestamps();
     }

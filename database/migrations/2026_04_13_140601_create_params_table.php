@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->unsignedTinyInteger('filter_type')->default('1');
             $table->string('input_type')->default('1');
+            $table->boolean('is_variant')->default(false);
             $table->softDeletes();
             $table->timestamps();
         });

@@ -18,6 +18,7 @@ class ParamProductResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'value' => $this->pivot->value,
+            'display_name' => $this->pivot->display_name,
         ];
     }
 }

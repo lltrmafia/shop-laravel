@@ -11,6 +11,12 @@
             <option :value="null" disabled>Выберите тип фильтра</option>
             <option v-for="filterType in filterTypes" :value="filterType.value">{{ filterType.label_cyrillic }}</option>
         </select>
+        <label for="variant"
+               class="flex items-center gap-2 bg-[#101828] border border-white/20 text-white rounded-lg p-3">
+            Вариативная характеристика?
+            <input v-model="param.is_variant"
+                   id="variant" type="checkbox" class="cursor-pointer">
+        </label>
         <a @click.prevent="updateCategory" class="border border-white/20 bg-gray-900 inline-block text-white px-4 py-3 rounded-lg w-max"
            href="#">Обновить</a>
     </div>

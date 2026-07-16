@@ -69,6 +69,7 @@ class ProductService
             foreach ($data['params'] as $param) {
                 $params[$param['id']] = [
                     'value' => $param['value'],
+                    'display_name' => $param['display_name'] ?? null,
                 ];
             }
 

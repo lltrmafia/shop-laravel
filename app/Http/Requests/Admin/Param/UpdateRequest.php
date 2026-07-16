@@ -19,6 +19,7 @@ class UpdateRequest extends FormRequest
         return [
             'title' =>  'required|string|max:255',
             'filter_type' =>  ['required', new Enum(FilterType::class)],
+            'is_variant' => 'required|boolean',
         ];
     }
 }

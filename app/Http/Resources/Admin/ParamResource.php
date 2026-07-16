@@ -21,6 +21,7 @@ class ParamResource extends JsonResource
             'filter_type_name' => $this->filter_type_name,
             'input_type' => $this->input_type_value,
             'input_type_name' => $this->input_type_name,
+            'is_variant' => $this->is_variant
         ];
     }
 }

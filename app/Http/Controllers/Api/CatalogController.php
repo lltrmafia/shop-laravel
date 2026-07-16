@@ -17,7 +17,7 @@ class CatalogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'productGroup', 'media']);
+        $query = Product::with(['category', 'productGroup', 'media'])->whereNull('parent_id');
         $query = ProductFilterBuilder::applyFilters($query, $request);
         $query = ProductFilterBuilder::applySort($query, $request);
         return [

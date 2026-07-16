@@ -17,28 +17,61 @@
         </li>
     </ul>
     <section class="flex gap-6 items-start min-h-screen mt-5">
-        <div class="w-[65%] shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-6 rounded-md flex items-start gap-2">
-            <div>
-                <img v-for="image in this.product.product_media" :key="image.url" :src="image.url" alt="image.alt">
-            </div>
-            <div>
-                <img :src="galleryImage.url" :alt="galleryImage.alt">
-            </div>
+        <div class="w-[65%] shadow-[0_8px_40px_rgba(0,0,0,0.08)] rounded-md flex items-start gap-2 min-h-screen">
+            <ProductGallery :images="selectedChild.product_media"/>
         </div>
         <div class="w-[35%] bg-transparent min-h-screen">
             <div class="shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-6 rounded-md min-h-screen">
                 <div>
-                    <h1 class="text-black text-[26px] font-medium">{{ product.title }}</h1>
+                    <h1 class="text-black text-[26px] font-medium">{{ selectedChild.title }}</h1>
+                </div>
+                <div class="flex flex-col items-start gap-4">
+                    <div v-for="variable in variableParams"
+                         :key="variable.id"
+                         class="flex flex-col gap-2 items-start">
+                        <div>
+                            <span class="text-black font-medium">{{ variable.title }}:</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <template v-for="item in variable.values"
+                                      :key="item.value">
+                                <button v-if="variable.input_type === 4"
+                                        @click="selectChild(variable.id, item.value)"
+                                        :title="item.display_name"
+                                        :class="[
+                                        'w-8 h-8 rounded-full flex items-center justify-center',
+                                        variablesClass(variable.id, item.value)
+                                            ? 'border-2 border-blue-600' : ''
+                                    ]">
+                                    <span
+                                        class="w-6 h-6 rounded-full border border-gray-300"
+                                        :style="{ backgroundColor: item.value }"
+                                    ></span>
+                                </button>
+                                <button v-else
+                                        :disabled="!isDisabled(variable.id, item.value)"
+                                        @click="selectChildSize(variable.id, item.value)"
+                                        :class="['w-[70px] h-[35px] rounded-md flex items-center justify-center font-medium border p-4 disabled:opacity-25',
+                                        variablesClass(variable.id, item.value)
+                                        ? 'border-2 border-blue-600 text-blue-700'
+                                        : 'text-black border border-gray-400']"
+                                        :title="item.display_name">
+                                    {{ item.value }}
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex items-center justify-between">
-                    <p class="text-[28px] font-bold mt-3">{{ product.price }} <span
+                    <p class="text-[28px] font-bold mt-3">{{ selectedChild.price }} <span
                         class="uppercase text-sm font-medium">AED</span></p>
                     <div class="flex gap-1 items-center">
                         <svg width="10" height="10">
-                            <circle cx="5" cy="5" r="4" :class="stockClass(product.stock_status)" fill="currentColor"/>
+                            <circle cx="5" cy="5" r="4" :class="stockClass(selectedChild.stock_status)"
+                                    fill="currentColor"/>
                         </svg>
-                        <span :class="stockClass(product.stock_status)">
-                        {{ stockLabels[product.stock_status] }}
+                        <span :class="stockClass(selectedChild.stock_status)">
+                        {{ stockLabels[selectedChild.stock_status] }}
                     </span>
                     </div>
                 </div>
@@ -82,9 +115,11 @@
 import {defineComponent} from 'vue'
 import axios from "axios";
 import ClientLayout from "@/Layouts/ClientLayout.vue";
+import ProductGallery from "@/Components/Client/Product/ProductGallery.vue";
 
 export default defineComponent({
     name: "Index",
+    components: {ProductGallery},
     layout: ClientLayout,
 
     data() {
@@ -96,8 +131,11 @@ export default defineComponent({
                 low_stock: 'Мало',
                 out_of_stock: 'Нет в наличии'
             },
+            selectedChild: {},
             productQty: 1,
-            galleryImage: []
+            galleryImage: [],
+            variableParams: null,
+            selectedParams: {},
         }
     },
     computed: {
@@ -123,8 +161,12 @@ export default defineComponent({
         async loadData() {
             const {data} = await axios.get(`/api/products/${this.$route.params.product}`)
             this.product = data.product
+            this.selectedChild = this.product.children[0]
+            this.selectedParams = this.selectedChild.compare_params
             this.galleryImage = this.product.product_media[0]
             this.breadcrumbs = data.breadcrumbs
+            this.variableParams = data.variableParams
+
         },
         stockClass(status) {
             const classes = {
@@ -134,7 +176,47 @@ export default defineComponent({
             }
 
             return classes[status]
-        }
+        },
+        variablesClass(id, value) {
+            return this.selectedChild.compare_params[id] === value
+        },
+
+        selectChild(paramId, value) {
+            const tempSelection = {};
+            tempSelection[paramId] = value
+            const tempChildren = this.product.children
+            this.selectedChild = tempChildren.find($child => {
+                if (Object.entries($child.compare_params).some(([$key, $value]) => {
+                    return $value === tempSelection[$key]
+                }))
+                    return $child
+            })
+            this.selectedParams = this.selectedChild.compare_params
+        },
+        selectChildSize(paramId, value){
+            const tempSelection = {...this.selectedParams};
+            tempSelection[paramId] = value
+            const tempChildren = this.product.children
+            this.selectedChild = tempChildren.find($child => {
+                if (Object.entries($child.compare_params).every(([$key, $value]) => {
+                    return $value === tempSelection[$key]
+                }))
+                    return $child
+            })
+            this.selectedParams = this.selectedChild.compare_params
+        },
+
+        isDisabled(paramId, value) {
+            const tempSelection = {...this.selectedParams};
+            tempSelection[paramId] = value
+            const tempChildren = this.product.children
+            return tempChildren.some($child => {
+                return Object.entries($child.compare_params).every(([$key, $value]) => {
+                    return $value === tempSelection[$key]
+                });
+            })
+
+        },
     },
     async mounted() {
         await this.loadData()

@@ -34,6 +34,7 @@ class UpdateRequest extends FormRequest
             'params' => 'nullable|array',
             'params.*.id' => 'required|integer|exists:params,id',
             'params.*.value' => 'required|string',
+            'params.*.display_name' => 'nullable|string',
             'media' => 'nullable|array',
         ];
     }

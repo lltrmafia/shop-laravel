@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Product;
 
+use App\Services\Client\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -31,6 +32,11 @@ class ProductCardResource extends JsonResource
             'parent_id' => $this->parent_id,
             'product_media' => $this->product_media,
             'stock_status' => $this->stock_status,
+            'params' => $this->params,
+            'compare_params' => ProductService::getCompareParams($this, $this->params),
+            'children' => ProductCardResource::collection(
+                $this->whenLoaded('children')
+            ),
         ];
     }
 }

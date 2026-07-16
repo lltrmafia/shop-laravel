@@ -14,7 +14,14 @@
             <option :value="null" disabled>Выберите тип характеристики</option>
             <option v-for="inputType in inputTypes" :value="inputType.value">{{ inputType.title }}</option>
         </select>
-        <a @click.prevent="storeParam" class="border border-white/20 bg-gray-900 inline-block text-white px-4 py-3 rounded-lg w-max" href="#">Создать</a>
+        <label for="variant"
+               class="flex items-center gap-2 bg-[#101828] border border-white/20 text-white rounded-lg p-3">
+            Вариативная характеристика?
+            <input v-model="param.is_variant"
+                   id="variant" type="checkbox" class="cursor-pointer">
+        </label>
+        <a @click.prevent="storeParam"
+           class="border border-white/20 bg-gray-900 inline-block text-white px-4 py-3 rounded-lg w-max" href="#">Создать</a>
     </div>
 
 
@@ -24,12 +31,14 @@
 import {defineComponent} from 'vue'
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import {Link} from "@inertiajs/vue3";
+import Checkbox from "@/Components/Checkbox.vue";
 
 export default defineComponent({
     name: "Index",
     layout: AdminLayout,
 
     components: {
+        Checkbox,
         Link,
     },
 
@@ -37,23 +46,25 @@ export default defineComponent({
         filterTypes: Array,
         inputTypes: Array
     },
-    data(){
-        return{
+    data() {
+        return {
             param: {
                 filter_type: null,
                 input_type: null,
                 title: '',
+                is_variant: false,
             }
         }
     },
 
     methods: {
-        storeParam(){
+        storeParam() {
             axios.post(route('admin.params.store'), this.param)
-                .then(res=>{
+                .then(res => {
                     this.param = {
                         filter_type: null,
                         input_type: null,
+                        is_variant: false,
                     }
                 })
         }

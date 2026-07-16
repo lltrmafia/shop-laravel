@@ -15,6 +15,7 @@ class Param extends Model
         'title',
         'filter_type',
         'input_type',
+        'is_variant'
     ];
     protected $casts = [
         'filter_type' => FilterType::class,

@@ -67,12 +67,13 @@
                                 @change="disabledBtn=false"
                                 class="bg-[#101828] border border-white/20 text-white">
                             <option :value="{}" disabled>Выберите характеристику</option>
-                            <option :disabled="entries.params.some(item => item.id === param.id)" v-for="param in params.data" :value="param">
+                            <option :disabled="entries.params.some(item => item.id === param.id)"
+                                    v-for="param in params.data" :value="param">
                                 {{ param.title }}
                             </option>
                         </select>
 
-                        <div>
+                        <div class="flex gap-2">
                             <div class="relative" v-if="paramOption.paramObj?.input_type_name === 'color'">
                                 <input
                                     v-model="paramOption.value"
@@ -101,6 +102,12 @@
                                    :disabled="disabledBtn"
                                    class="bg-[#101828] border border-white/20 text-white"
                                    placeholder="Значение">
+                            <input v-if="paramOption.paramObj.is_variant"
+                                   v-model="paramOption.display_name"
+                                   type="text"
+                                   placeholder="Название"
+                                   :disabled="disabledBtn"
+                                   class="bg-[#101828] border border-white/20 text-white">
                         </div>
                         <a @click.prevent="setParam"
                            class="bg-[#101828] border border-white/20 text-white px-4 flex items-center" href="#">+</a>
@@ -113,11 +120,12 @@
                         <span
                             @click="deleteParam(paramEntries)"
                             class="absolute top-[-5px] right-[-5px] cursor-pointer">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="size-4">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="red" class="size-4">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
                             </svg>
                         </span>
-                        <div>{{paramEntries.title}} - {{paramEntries.value}}</div>
+                        <div>{{ paramEntries.title }} {{ paramEntries.value }}</div>
                     </div>
                 </div>
             </div>
@@ -131,8 +139,8 @@
             v-model:selectedGallery="selectedGallery"
             :productChildren="productChildren"
             :productChildrenTrashed="productChildrenTrashed"
-            :parentProductId ="parentProductId"
-            :parentProduct ="parentProduct"
+            :parentProductId="parentProductId"
+            :parentProduct="parentProduct"
             @modal-for-preview="modalForPreview"
             @modal-for-gallery="modalForGallery"
             @remove-gallery-item="removeGalleryItem"
@@ -174,7 +182,8 @@ export default defineComponent({
             tempModalMode: null,
             paramOption: {
                 paramObj: {},
-                value: ''
+                value: '',
+                display_name: ''
             },
             selectedPreview: this.initialPreview,
             selectedGallery: [...this.initialGallery],
@@ -257,18 +266,23 @@ export default defineComponent({
                 this.mediaGallery.selected_images_ids.filter(item => item !== image.id)
         },
         setParam() {
-            if(this.paramOption.value.length === 0) return
+            if (this.paramOption.value.length === 0) return
+            if (this.paramOption.paramObj.is_variant && this.paramOption.display_name.length === 0) return
+
             this.entries.params.push({
                 id: this.paramOption.paramObj.id,
                 title: this.paramOption.paramObj.title,
-                value: String(this.paramOption.value)
+                value: String(this.paramOption.value),
+                display_name: String(this.paramOption.display_name)
             })
             this.disabledBtn = true
             this.paramOption = {
                 paramObj: {},
+                value: '',
+                display_name: ''
             };
         },
-        deleteParam(param){
+        deleteParam(param) {
             this.entries.params = this.entries.params.filter(item => item.id !== param.id)
         }
     },

@@ -8,8 +8,7 @@ class ParamService
 {
     public static function store(array $data): Param
     {
-        $param = Param::create($data);
-        return $param;
+        return Param::create($data);
     }
     public static function update(Param $param, array $data): Param
     {

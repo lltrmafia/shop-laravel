@@ -7,6 +7,7 @@ use App\Http\Resources\Api\Product\ProductCardResource;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\Client\CategoryService;
+use App\Services\Client\ProductService;
 
 class ProductController extends Controller
 {
@@ -27,8 +28,9 @@ class ProductController extends Controller
     {
         $category = Category::find($product->category_id);
         return [
-            'product' => ProductCardResource::make($product),
+            'product' => ProductCardResource::make(Product::with(['params', 'children.params'])->findOrFail($product->id)),
             'breadcrumbs' => CategoryService::getBreadcrumbs($category),
+            'variableParams' => ProductService::getVariableParams($product),
         ];
     }
 }
