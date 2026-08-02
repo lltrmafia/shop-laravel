@@ -30,7 +30,7 @@
                          :key="variable.id"
                          class="flex flex-col gap-2 items-start">
                         <div>
-                            <span class="text-black font-medium">{{ variable.title }}:</span>
+                            <span class="text-black font-medium">{{ variable.title }}: {{getDisplayName(variable)}}</span>
                         </div>
                         <div class="flex items-center gap-2">
                             <template v-for="item in variable.values"
@@ -260,6 +260,12 @@ export default defineComponent({
             })
 
         },
+
+        getDisplayName(variable){
+            const value = this.selectedChild.compare_params[variable.id]
+            return variable.values.find(v => v.value === value)?.display_name;
+        },
+
        async storeCart(){
            this.isLoading = true
            try{
