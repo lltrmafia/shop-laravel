@@ -13,6 +13,7 @@ use App\Services\Client\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use function PHPSTORM_META\map;
 
 class CategoryController extends Controller
 {
@@ -28,15 +29,20 @@ class CategoryController extends Controller
     public function show(Category $category, Request $request)
     {
         $ids = $this->getChildren($category);
-        $query = Product::whereIn('category_id', $ids)->whereNull('parent_id');
-        $query = ProductFilterBuilder::applyFilters($query, $request);
+        $query = Product::whereIn('category_id', $ids);
+        $data = ProductFilterBuilder::applyFilters($query, $request);
+        $query = $data->query;
+        $childIds = $data->childIds;
         $query = ProductFilterBuilder::applySort($query, $request);
+        $products = (clone $query)->whereNull('parent_id')->with('children')->paginate(12);
+        ProductService::attachSelectedChildId($products, $childIds);
+
         return [
             'title' => $category->title,
-            'products' => CatalogProductResource::collection($query->get()),
+            'products' => CatalogProductResource::collection($products),
             'breadcrumbs' => CategoryService::getBreadcrumbs($category),
-            'productsQty' => ProductService::getProductQty($query->get()),
-            'params' => ProductFilterBuilder::getParams($query->get())
+            'productsQty' => ProductService::getProductQty((clone $query)->get()),
+            'params' => ProductFilterBuilder::getParams((clone $query)->whereNotNull('parent_id')->get()),
         ];
     }
 

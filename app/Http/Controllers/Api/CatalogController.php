@@ -17,14 +17,18 @@ class CatalogController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'productGroup', 'media'])->whereNull('parent_id');
-        $query = ProductFilterBuilder::applyFilters($query, $request);
+        $query = Product::with(['category', 'productGroup', 'media']);
+        $data = ProductFilterBuilder::applyFilters($query, $request);
+        $query = $data->query;
+        $childIds = $data->childIds;
         $query = ProductFilterBuilder::applySort($query, $request);
+        $products = (clone $query)->whereNull('parent_id')->with('children')->paginate(12);
+        ProductService::attachSelectedChildId($products, $childIds);
         return [
             'title' => 'Каталог',
-            'products' => CatalogProductResource::collection($query->paginate(12)),
-            'productsQty' => ProductService::getProductQty($query->get()),
-            'params' => ProductFilterBuilder::getParams($query->get()),
+            'products' => CatalogProductResource::collection($products),
+            'productsQty' => ProductService::getProductQty((clone $query)->get()),
+            'params' => ProductFilterBuilder::getParams((clone $query)->whereNotNull('parent_id')->get()),
             'breadcrumbs' => []
         ];
 

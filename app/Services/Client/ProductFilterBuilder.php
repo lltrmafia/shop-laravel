@@ -21,7 +21,7 @@ class ProductFilterBuilder
         }));
         $grouped = $collection->groupBy('id');
 
-        return $finished = $grouped->map(function ($param) {
+        return $grouped->map(function ($param) {
             $first = $param->first();
             return [
                 'id' => $first['id'],
@@ -56,7 +56,7 @@ class ProductFilterBuilder
                 });
             }
         }
-        return $query;
+        return ProductService::getParentForSliderResults($query, $request);
     }
 
     public static function applySort($query, $request)

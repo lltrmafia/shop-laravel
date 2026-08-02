@@ -149,11 +149,15 @@ export default defineComponent({
     methods: {
         async loadData() {
             const {data} = await axios.get(this.getApiUrl())
-
             this.title = data.title
             this.filterParams = data.params
             this.breadcrumbs = data.breadcrumbs
             this.products = data.products
+            this.products.forEach(product => {
+                !product.selected_child_id
+                    ? product.selected_child_id = product.children[0].id
+                    : product.selected_child_id
+            })
             this.productsQty = data.productsQty
         },
         onFilterChange(filters) {
@@ -182,7 +186,7 @@ export default defineComponent({
                 ? `/api/categories/${this.$route.params.category}`
                 : '/api/catalog'
         },
-        viewButtonClass(type){
+        viewButtonClass(type) {
             return [
                 'border rounded-md h-12 w-14 flex items-center justify-center cursor-pointer',
                 this.view === type

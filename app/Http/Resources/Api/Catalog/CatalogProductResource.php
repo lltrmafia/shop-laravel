@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api\Catalog;
 
+use App\Http\Resources\Api\Product\ProductCardResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,6 +24,10 @@ class CatalogProductResource extends JsonResource
             'slug' => $this->slug,
             'stock_status' => $this->stock_status,
             'image_preview' => $this->image_preview,
+            'selected_child_id' => $this->selected_child_id,
+            'children' => ProductCardResource::collection(
+                $this->whenLoaded('children')
+            ),
         ];
     }
 }

@@ -15,7 +15,7 @@
                 <Link :href="route('admin.media.index')" class="block p-4 text-white">Медиафайлы</Link>
             </nav>
         </aside>
-        <article class="p-4 block flex-1 bg-[#030712]">
+        <article class="p-4 block flex-1 bg-[#030712] overflow-auto">
             <slot />
         </article>
     </section>

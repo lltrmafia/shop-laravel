@@ -3,6 +3,8 @@
 namespace App\Services\Client;
 
 
+use App\Models\Product;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use PhpParser\Node\Expr\Cast\Object_;
 
@@ -27,7 +29,6 @@ class ProductService
         $childrenParams = $product->children->flatMap(function ($child) {
             return $child->params;
         });
-
         return $childrenParams->groupBy('id')->filter(function ($param) {
             return $param->first()->is_variant;
         })->map(function ($param) {
@@ -56,6 +57,36 @@ class ProductService
             return [$item->id => $item->pivot->value];
         });
 
-        return (object) $result->all();
+        return (object)$result->all();
+    }
+
+    public static function getParentForSliderResults($query, $request): object
+    {
+        $childIds = [];
+
+        if($request->query('filter')){
+            $childIds = $query->get()->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'parent_id' => $item->parent_id,
+                ];
+            })->unique('parent_id')->values()->all();
+
+            $parentIds = $query->get()->pluck('parent_id')->unique()->values();
+            $query = Product::query()->whereIn('id', $parentIds);
+        }
+        return (object) [
+            'query' => $query,
+            'childIds' => $childIds,
+        ];
+    }
+
+    public static function attachSelectedChildId($products, $childIds): LengthAwarePaginator
+    {
+        $childIds = collect($childIds)->keyBy('parent_id');
+        foreach ($products as $product) {
+            $product->selected_child_id = $childIds[$product->id]['id'] ?? null;
+        }
+        return $products;
     }
 }

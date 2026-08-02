@@ -37,6 +37,7 @@ class ProductCardResource extends JsonResource
             'children' => ProductCardResource::collection(
                 $this->whenLoaded('children')
             ),
+            'selected_child_id' => $this->selected_child_id
         ];
     }
 }

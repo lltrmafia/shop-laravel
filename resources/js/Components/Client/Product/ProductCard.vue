@@ -5,7 +5,12 @@
                 <img :src="product.image_preview?.url" :alt="product.image_preview?.alt">
             </div>
             <div>
-                <h4 class="text-md"><router-link :to="`/products/${product.slug}`">{{ product.title }}</router-link></h4>
+<!--                <h4 class="text-md"><router-link :to="`/products/${product.slug}`">{{ product.title }}</router-link></h4>-->
+                <h4 class="text-md"><router-link :to="{
+                    name: 'Product',
+                    params: {product: product.slug},
+                    query: {child: product.selected_child_id}
+                }">{{ product.title }}</router-link></h4>
                 <p class="text-[24px] font-bold mt-3">{{ product.price }} <span class="uppercase text-sm font-medium">AED</span></p>
                 <div class="flex gap-1 items-center">
                     <svg width="10" height="10">
@@ -73,7 +78,7 @@ export default defineComponent({
 
             return classes[status]
         }
-    }
+    },
 })
 </script>
 
